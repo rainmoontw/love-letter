@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>給你的一封信 💌</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family:
+                "Microsoft JhengHei",
+                "Noto Serif TC",
+                serif;
+
+            background:
+                radial-gradient(
+                    circle at 50% 20%,
+                    #fff8f5 0%,
+                    #fdecef 45%,
+                    #f7dce3 100%
+                );
+
+            color: #6b4a52;
+        }
+
+        /* =========================
+           背景星光
+        ========================= */
+
+        .stars {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+
+        /* =========================
+           花瓣
+        ========================= */
+
+        .petal {
+            position: fixed;
+            top: -30px;
+            z-index: 5;
+
+            width: 14px;
+            height: 20px;
+
+            background: #f6b9c7;
+
+            border-radius: 70% 30% 70% 30%;
+
+            opacity: 0.75;
+
+            pointer-events: none;
+
+            animation:
+                fall linear forwards,
+                sway ease-in-out infinite;
+        }
+
+        @keyframes fall {
+            from {
+                transform: translateY(-30px) rotate(0deg);
+            }
+
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        @keyframes sway {
+            0% {
+                margin-left: 0;
+            }
+
+            50% {
+                margin-left: 60px;
+            }
+
+            100% {
+                margin-left: -30px;
+            }
+        }
+
+
+        /* =========================
+           開場
+        ========================= */
+
+        #opening {
+            position: fixed;
+            inset: 0;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            z-index: 10;
+
+            transition:
+                opacity 1s ease,
+                visibility 1s;
+        }
+
+        #opening.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+
+        .opening-content {
+            text-align: center;
+            animation: fadeUp 1.5s ease;
+        }
+
+        .opening-content h1 {
+            font-size: 30px;
+            font-weight: normal;
+            letter-spacing: 6px;
+
+            color: #79535d;
+
+            margin-bottom: 35px;
+        }
+
+        .opening-content p {
+            margin-top: 30px;
+
+            font-size: 15px;
+            letter-spacing: 3px;
+
+            color: #9b727c;
+        }
+
+
+        /* =========================
+           信封
+        ========================= */
+
+        .envelope {
+            position: relative;
+
+            width: 300px;
+            height: 200px;
+
+            margin: auto;
+
+            cursor: pointer;
+
+            perspective: 1000px;
+
+            filter:
+                drop-shadow(0 20px 25px rgba(120, 70, 85, 0.18));
+
+            transition: transform 0.4s ease;
+        }
+
+        .envelope:hover {
+            transform: translateY(-8px);
+        }
+
+
+        .envelope-back {
+            position: absolute;
+            inset: 0;
+
+            background: #f4cfd7;
+
+            border-radius: 8px;
+        }
+
+
+        .letter {
+            position: absolute;
+
+            width: 270px;
+            height: 170px;
+
+            left: 15px;
+            top: 10px;
+
+            background: #fffaf7;
+
+            border-radius: 5px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 35px;
+
+            color: #d8899d;
+
+            transition:
+                transform 1s ease,
+                z-index 0s 0.5s;
+
+            z-index: 2;
+        }
+
+
+        .flap {
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 0;
+            height: 0;
+
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 110px solid #e9b7c2;
+
+            transform-origin: top;
+
+            transition: transform 0.9s ease;
+
+            z-index: 4;
+        }
+
+
+        .front {
+            position: absolute;
+
+            bottom: 0;
+            left: 0;
+
+            width: 0;
+            height: 0;
+
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 110px solid #e5b0bc;
+
+            z-index: 3;
+        }
+
+
+        .envelope.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+
+        .envelope.open .letter {
+            transform: translateY(-100px);
+            z-index: 5;
+        }
+
+
+        /* =========================
+           主要內容
+        ========================= */
+
+        #letter-page {
+            position: relative;
+
+            min-height: 100vh;
+
+            padding: 100px 20px;
+
+            display: none;
+
+            z-index: 2;
+        }
+
+        #letter-page.show {
+            display: block;
+
+            animation: fadeIn 1.5s ease;
+        }
+
+
+        .paper {
+            width: min(700px, 100%);
+
+            margin: auto;
+
+            padding: 70px 55px;
+
+            background:
+                linear-gradient(
+                    rgba(255,255,255,0.96),
+                    rgba(255,250,248,0.96)
+                );
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 20px 60px rgba(120,70,85,0.15);
+
+            position: relative;
+        }
+
+
+        .paper::before {
+            content: "";
+
+            position: absolute;
+
+            inset: 15px;
+
+            border: 1px solid #efd5da;
+
+            border-radius: 6px;
+
+            pointer-events: none;
+        }
+
+
+        .paper-header {
+            text-align: center;
+
+            margin-bottom: 50px;
+        }
+
+        .paper-header .small {
+            font-size: 13px;
+
+            letter-spacing: 4px;
+
+            color: #b48791;
+
+            margin-bottom: 15px;
+        }
+
+        .paper-header h2 {
+            font-size: 32px;
+
+            font-weight: normal;
+
+            color: #754e58;
+
+            letter-spacing: 5px;
+        }
+
+
+        .content {
+            font-size: 17px;
+
+            line-height: 2.3;
+
+            letter-spacing: 1px;
+
+            color: #70565c;
+        }
+
+        .content p {
+            margin-bottom: 28px;
+        }
+
+
+        .signature {
+            text-align: right;
+
+            margin-top: 50px;
+
+            font-size: 17px;
+
+            color: #85616a;
+        }
+
+
+        /* =========================
+           告白
+        ========================= */
+
+        .confession {
+            margin-top: 80px;
+
+            padding-top: 60px;
+
+            border-top: 1px solid #efd9de;
+
+            text-align: center;
+        }
+
+        .confession p {
+            font-size: 14px;
+
+            letter-spacing: 4px;
+
+            color: #ae808a;
+
+            margin-bottom: 20px;
+        }
+
+        .confession h3 {
+            font-size: 32px;
+
+            font-weight: normal;
+
+            letter-spacing: 6px;
+
+            color: #c66d83;
+
+            opacity: 0;
+
+            transform: translateY(20px);
+
+            transition:
+                opacity 1.5s ease,
+                transform 1.5s ease;
+        }
+
+        .confession h3.show {
+            opacity: 1;
+
+            transform: translateY(0);
+        }
+
+
+        .heart {
+            margin-top: 30px;
+
+            font-size: 28px;
+
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+
+        /* =========================
+           按鈕
+        ========================= */
+
+        .start-button {
+            margin-top: 35px;
+
+            padding: 12px 35px;
+
+            border: 1px solid #dcaeba;
+
+            background: rgba(255,255,255,0.5);
+
+            color: #875b65;
+
+            border-radius: 30px;
+
+            font-family: inherit;
+
+            letter-spacing: 2px;
+
+            cursor: pointer;
+
+            transition: all 0.3s ease;
+        }
+
+        .start-button:hover {
+            background: #dcaeba;
+
+            color: white;
+
+            transform: translateY(-3px);
+        }
+
+
+        /* =========================
+           動畫
+        ========================= */
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+
+        /* =========================
+           手機版
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            .opening-content h1 {
+                font-size: 23px;
+
+                letter-spacing: 4px;
+            }
+
+            .envelope {
+                width: 260px;
+                height: 175px;
+            }
+
+            .flap {
+                border-left-width: 130px;
+                border-right-width: 130px;
+                border-top-width: 95px;
+            }
+
+            .front {
+                border-left-width: 130px;
+                border-right-width: 130px;
+                border-bottom-width: 95px;
+            }
+
+            .letter {
+                width: 230px;
+                height: 145px;
+
+                left: 15px;
+            }
+
+            .paper {
+                padding: 50px 30px;
+            }
+
+            .paper::before {
+                inset: 10px;
+            }
+
+            .paper-header h2 {
+                font-size: 25px;
+            }
+
+            .content {
+                font-size: 16px;
+
+                line-height: 2.1;
+            }
+
+            .confession h3 {
+                font-size: 25px;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================
+         背景
+    ========================== -->
+
+    <div class="stars" id="stars"></div>
+
+
+    <!-- =========================
+         開場
+    ========================== -->
+
+    <section id="opening">
+
+        <div class="opening-content">
+
+            <h1>有一封信，想親手交給你</h1>
+
+            <div class="envelope" id="envelope">
+
+                <div class="envelope-back"></div>
+
+                <div class="letter">
+                    💌
+                </div>
+
+                <div class="flap"></div>
+
+                <div class="front"></div>
+
+            </div>
+
+            <p>點擊信封，打開這封信</p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         情書
+    ========================== -->
+
+    <main id="letter-page">
+
+        <article class="paper">
+
+            <header class="paper-header">
+
+                <div class="small">
+                    TO SOMEONE SPECIAL
+                </div>
+
+                <h2>給你的一封信</h2>
+
+            </header>
+
+
+            <div class="content">
+
+                <!--
+                    ==========================
+                    ✏️ 你可以從這裡開始修改文字
+                    ==========================
+                -->
+
+                <p>
+                    嗨，看到這裡的時候，
+                    我想你應該已經打開這封信了。
+                </p>
+
+                <p>
+                    其實有些話，我想了很久很久，
+                    卻一直不知道應該怎麼跟你說。
+                    所以最後，我決定把它寫下來。
+                </p>
+
+                <p>
+                    從認識你的那一天開始，
+                    有一些很平常的日子，
+                    好像也慢慢變得不太一樣了。
+                </p>
+
+                <p>
+                    可能只是看到你的訊息會忍不住笑，
+                    可能只是在人群裡看到你的時候，
+                    心裡會突然有一點開心。
+                </p>
+
+                <p>
+                    我不知道你有沒有發現，
+                    但我好像真的，
+                    一點一點地把你放進了心裡。
+                </p>
+
+                <p>
+                    我不敢保證未來會發生什麼，
+                    也不想用一封信給你任何壓力。
+                </p>
+
+                <p>
+                    我只是想讓你知道，
+                    在這個世界上，
+                    有一個人很珍惜和你相遇的這件事情。
+                </p>
+
+            </div>
+
+
+            <div class="signature">
+
+                希望你能知道<br><br>
+
+                一個很喜歡你的人
+
+            </div>
+
+
+            <!-- =========================
+                 最後告白
+            ========================== -->
+
+            <section class="confession">
+
+                <p>
+                    最後，我想認真告訴你一件事
+                </p>
+
+                <h3 id="confessionText">
+                    我喜歡你。
+                </h3>
+
+                <div class="heart">
+                    ♡
+                </div>
+
+            </section>
+
+        </article>
+
+    </main>
+
+
+    <script>
+
+        /* =========================
+           信封動畫
+        ========================== */
+
+        const envelope =
+            document.getElementById("envelope");
+
+        const opening =
+            document.getElementById("opening");
+
+        const letterPage =
+            document.getElementById("letter-page");
+
+        const confessionText =
+            document.getElementById("confessionText");
+
+
+        envelope.addEventListener("click", () => {
+
+            envelope.classList.add("open");
+
+            setTimeout(() => {
+
+                opening.classList.add("hide");
+
+                setTimeout(() => {
+
+                    letterPage.classList.add("show");
+
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+
+                }, 700);
+
+            }, 1000);
+
+        });
+
+
+        /* =========================
+           飄落花瓣
+        ========================== */
+
+        function createPetal() {
+
+            const petal =
+                document.createElement("div");
+
+            petal.classList.add("petal");
+
+            petal.style.left =
+                Math.random() * 100 + "vw";
+
+            const size =
+                Math.random() * 10 + 8;
+
+            petal.style.width =
+                size + "px";
+
+            petal.style.height =
+                size * 1.4 + "px";
+
+            const duration =
+                Math.random() * 5 + 6;
+
+            petal.style.animationDuration =
+                duration + "s";
+
+            document.body.appendChild(petal);
+
+
+            setTimeout(() => {
+
+                petal.remove();
+
+            }, duration * 1000);
+
+        }
+
+
+        setInterval(createPetal, 500);
+
+
+        /* =========================
+           星光
+        ========================== */
+
+        const stars =
+            document.getElementById("stars");
+
+
+        for (let i = 0; i < 35; i++) {
+
+            const star =
+                document.createElement("div");
+
+            star.classList.add("star");
+
+            star.style.left =
+                Math.random() * 100 + "%";
+
+            star.style.top =
+                Math.random() * 100 + "%";
+
+            star.style.animationDelay =
+                Math.random() * 3 + "s";
+
+            stars.appendChild(star);
+
+        }
+
+
+        /* =========================
+           滑到最後告白
+        ========================== */
+
+        const observer =
+            new IntersectionObserver(
+                entries => {
+
+                    entries.forEach(entry => {
+
+                        if (entry.isIntersecting) {
+
+                            confessionText.classList.add("show");
+
+                        }
+
+                    });
+
+                },
+                {
+                    threshold: 0.5
+                }
+            );
+
+
+        observer.observe(confessionText);
+
+    </script>
+
+</body>
+</html>
